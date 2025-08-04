@@ -1,0 +1,68 @@
+# symptom_checker.py
+
+# Simulated database (in real case, fetch from WHO/CDC/MedlinePlus)
+symptom_condition_map = {
+    "fever": ["Common Cold", "Flu", "COVID-19"],
+    "cough": ["Common Cold", "Bronchitis", "COVID-19"],
+    "sore throat": ["Strep Throat", "Pharyngitis", "Cold"],
+    "headache": ["Migraine", "Tension Headache", "Flu"],
+    "fatigue": ["Anemia", "Thyroid Issues", "Flu"],
+    "shortness of breath": ["Asthma", "COVID-19", "Heart Problems"]
+}
+
+home_remedies = {
+    "fever": ["Stay hydrated", "Take rest", "Use a cold compress"],
+    "cough": ["Honey with warm water", "Steam inhalation", "Avoid cold drinks"],
+    "sore throat": ["Gargle with salt water", "Drink warm fluids", "Use lozenges"],
+    "headache": ["Apply cold pack", "Rest in dark room", "Stay hydrated"],
+    "fatigue": ["Get adequate sleep", "Eat iron-rich foods", "Reduce stress"],
+    "shortness of breath": ["Use inhaler if prescribed", "Sit upright", "Seek medical help if severe"]
+}
+
+def analyze_symptoms(user_input):
+    matched_symptoms = []
+    possible_conditions = set()
+    remedy_list = []
+
+    for symptom in symptom_condition_map:
+        if symptom in user_input.lower():
+            matched_symptoms.append(symptom)
+            possible_conditions.update(symptom_condition_map[symptom])
+            remedy_list.extend(home_remedies.get(symptom, []))
+
+    urgency_level = "Moderate"
+    if "shortness of breath" in matched_symptoms or "fever" in matched_symptoms and "cough" in matched_symptoms:
+        urgency_level = "High"
+
+    if not matched_symptoms:
+        return {
+            "error": "Could not detect symptoms. Please try rephrasing your input."
+        }
+
+    return {
+        "matched_symptoms": matched_symptoms,
+        "possible_conditions": list(possible_conditions),
+        "urgency_level": urgency_level,
+        "home_remedies": list(set(remedy_list)),
+        "recommendation": "Please consult a doctor if symptoms persist or worsen.",
+        "disclaimer": "This is not a medical diagnosis. For accurate assessment, consult a healthcare provider."
+    }
+
+# CLI Interface
+if _name_ == "_main_":
+    print("🩺 Agentic AI Health Symptom Checker (CLI Prototype)")
+    user_input = input("Enter your symptoms: ")
+
+    result = analyze_symptoms(user_input)
+
+    if "error" in result:
+        print("❗", result["error"])
+    else:
+        print("\n✅ Detected Symptoms:", ", ".join(result["matched_symptoms"]))
+        print("🧾 Possible Conditions:", ", ".join(result["possible_conditions"]))
+        print("⚠ Urgency Level:", result["urgency_level"])
+        print("🏡 Home Remedies:")
+        for remedy in result["home_remedies"]:
+            print("  -", remedy)
+        print("💡 Recommendation:", result["recommendation"])
+        print("🔒 Disclaimer:", result["disclaimer"])
